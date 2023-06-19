@@ -2,6 +2,7 @@ import requests
 import json
 import pandas as pd
 import html
+import re
 
 CLIENT_ID = '3q5CdnaIhuYAlTI0rNRK'
 CLIENT_SECRET = '20ZmNFLdPM'
@@ -24,6 +25,7 @@ def translate(line):
     if response.status_code == 200:
         result = response.json().get('message', {}).get('result', {})
         translated_text = result.get('translatedText')
+        translated_text = re.sub(r'<\/?b>', '', translated_text)
         return html.unescape(translated_text)
     else:
         return None
@@ -40,14 +42,16 @@ def get_news_data(query):
         items = response.json()['items']
         datas = []
         for i in items:
+            title = re.sub('<.*?>', '', html.unescape(i['title']))
+            description = re.sub('<.*?>', '', html.unescape(i['description']))
             data = {
-                'title': html.unescape(i['title']),
-                'pubDate': html.unescape(i['pubDate']),
-                'originallink': html.unescape(i['originallink']),
-                'description': html.unescape(i['description']),
-                'papago': translate(html.unescape(i['title']))
+                'Title': title,
+                'PubDate': html.unescape(i['pubDate']),
+                'Originallink': html.unescape(i['originallink']),
+                'Description': description,
+                'Papago': translate(title)
             }
-            print(i['title'])
+            print(title)
             datas.append(data)
         return pd.DataFrame(datas)
 
