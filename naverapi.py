@@ -43,7 +43,7 @@ def get_news_data(query):
                 'description': i['description'],
                 'papago': translate(i['title'])
             }
-            print(i['title']) # see process
+            print(i['title'])
             datas.append(data)
         return pd.DataFrame(datas)
 
