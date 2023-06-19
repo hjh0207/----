@@ -16,14 +16,16 @@ def translate(line):
         'target': 'en',
         'text': line
     }
-    data = json.dumps(data)
+    data_str = json.dumps(data)
+    data_str = data_str.replace("&apos;", "'")
     url2 = 'https://openapi.naver.com/v1/papago/n2mt'
-    response = requests.post(url2, headers=headers, data=data.encode('utf-8'))
+    response = requests.post(url2, headers=headers, data=data_str.encode('utf-8'))
     if response.status_code == 200:
         result = response.json().get('message', {}).get('result', {})
         return result.get('translatedText')
     else:
         return None
+
 
 
 def get_news_data(query):
@@ -37,15 +39,16 @@ def get_news_data(query):
         datas = []
         for i in items:
             data = {
-                'title': i['title'],
-                'pubDate': i['pubDate'],
-                'originallink': i['originallink'],
-                'description': i['description'],
-                'papago': translate(i['title'])
+                'title': i['title'].replace("&apos;", "'"),
+                'pubDate': i['pubDate'].replace("&apos;", "'"),
+                'originallink': i['originallink'].replace("&apos;", "'"),
+                'description': i['description'].replace("&apos;", "'"),
+                'papago': translate(i['title'].replace("&apos;", "'"))
             }
             print(i['title'])
             datas.append(data)
         return pd.DataFrame(datas)
+
 
 data = get_news_data('경성대')
 data.to_csv('translate.csv', index=False)
